@@ -1,0 +1,8 @@
+How to run CountTop.py
+
+Install python3 on your machine if it is not installed yet. Standart libraries 'os' and 'json' are used, you have no to install other libraries. Open your shell and type 'python3 CountTop.py'.
+
+The output should be like this:
+"['68e0593e-f455-4e1a-9cea-34908e74595e', 'ea004ec6-a39d-4657-bf4e-c52506feb64a', 'CountTop.py']
+Top prices are:
+[18396.73, 18396.73, 18402.71, 18402.71, 18415.36, 18415.36, 18420.62, 18424.07, 18435.5, 999999999]"
