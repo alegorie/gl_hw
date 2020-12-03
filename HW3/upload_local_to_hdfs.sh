@@ -51,13 +51,13 @@ echo "GS_PATH = $GS_PATH"
 echo "-------------------------------------"
 
 
-UPLOAD_CMD1="hdfs dfs -cp ${GS_PATH}/flights.csv ${HDFS_PATH}/input/flights.csv"
-echo "$UPLOAD_CMD1"
-${UPLOAD_CMD1}
+UPLOAD1="hdfs dfs -cp ${GS_PATH}/flights.csv ${HDFS_PATH}/input/flights.csv"
+echo "$UPLOAD1"
+${UPLOAD1}
 
-UPLOAD_CMD2="hdfs dfs -cp ${GS_PATH}/airlines.csv ${HDFS_PATH}/airlines.csv"
-echo "$UPLOAD_CMD2"
-${UPLOAD_CMD2}
+UPLOAD2="hdfs dfs -cp ${GS_PATH}/airlines.csv ${HDFS_PATH}/input/airlines.csv"
+echo "$UPLOAD2"
+${UPLOAD2}
 
 echo "<<<<<<<<<<<<<<<<<<  HDFS  <<<<<<<<<<<<<<<<<<<<<"
 
