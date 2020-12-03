@@ -41,6 +41,7 @@ else
 fi
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo "THIS_FILE = $THIS_FILE"
 echo "THIS_PATH = $THIS_PATH"
 echo "BASE_PATH = $BASE_PATH"
