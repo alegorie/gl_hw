@@ -1,65 +1,74 @@
 usage() {
-  echo -e "Usage: $0 [-g <gs path>] [-d <hdfs path>]\n"\
+  echo -e "Usage: $0 [-i <path>] [-a <path>] [-o <path>]\n"\
        "where\n"\
-       "-g defines path to a google storage bucket with csv file\n"\
-       "-d defines an hdfs destination path\n"\
+       "-i defines an input flights path\n"\
+       "-o defines an output path\n"\
+       "-a defines an input airlines path\n"\
+       "-e defines an executor - yarn (default) / hadoop\n"\
        "\n"\
         1>&2
   exit 1
 }
 
-while getopts ":g:d:" opt; do
+
+while getopts ":i:a::o:t:e:" opt; do
     case "$opt" in
-        g)  GS_PATH=${OPTARG} ;;
-        d)  HDFS_PATH=${OPTARG} ;;
+        i)  INPUT_PATH=${OPTARG} ;;
+        o)  OUTPUT_PATH=${OPTARG} ;;
+        a)  AIRLINES_PATH=${OPTARG} ;;
+        e)  EXECUTOR=${OPTARG} ;;
         *)  usage ;;
     esac
 done
 
-if [[ -z "$HDFS_PATH" ]];
+if [[ -z "$INPUT_PATH" ]];
 then
-  HDFS_PATH="/bdpc/hadoop_mr/airline"
+  INPUT_PATH="/bdpc/hadoop_mr/airlines/input"
 fi
 
-hadoop fs -rm -R "$HDFS_PATH"
-hdfs dfs -mkdir -p "$HDFS_PATH"
-hdfs dfs -mkdir -p "${HDFS_PATH}/input"
-
-if [[ -z "$GS_PATH" ]];
+if [[ -z "$AIRLINES_PATH" ]];
 then
-  GS_PATH="gs://globallogic-procamp-bigdata-datasets-markovyurii//2015_Flight_Delays_and_Cancellations"
+  AIRLINES_PATH="/bdpc/hadoop_mr/airlines/airlines.csv"
 fi
 
+if [[ -z "$OUTPUT_PATH" ]];
+then
+  OUTPUT_PATH="/bdpc/hadoop_mr/airlines/output"
+fi
+
+if [[ -z "$EXECUTOR" ]];
+then
+  EXECUTOR="yarn"
+fi
+
+hadoop fs -rm -R $OUTPUT_PATH
+hdfs dfs -ls ${INPUT_PATH}
 
 THIS_FILE=$(readlink -f "$0")
 THIS_PATH=$(dirname "$THIS_FILE")
-
-if [ "${FORMAT}" = 'txt' ]; then
-  LOCAL_PATH="${BASE_PATH}/data/word_count/*"
-else
-  LOCAL_PATH="${BASE_PATH}/data/word_count_gzip/*"
-fi
+BASE_PATH=$(readlink -f "$THIS_PATH/../")
+APP_PATH="$THIS_PATH/delays-1.0.jar"
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo "THIS_FILE = $THIS_FILE"
 echo "THIS_PATH = $THIS_PATH"
 echo "BASE_PATH = $BASE_PATH"
+echo "APP_PATH = $APP_PATH"
 echo "-------------------------------------"
-echo "HDFS_PATH = $HDFS_PATH"
-echo "GS_PATH = $GS_PATH"
+echo "INPUT_PATH = $INPUT_PATH"
+echo "AIRLINES_PATH = $AIRLINES_PATH"
+echo "OUTPUT_PUTH = $OUTPUT_PATH"
 echo "-------------------------------------"
 
+mapReduceArguments=(
+  "$APP_PATH"
+  "$INPUT_PATH"
+  "$OUTPUT_PATH"
+  "$AIRLINES_PATH"
+)
 
-UPLOAD_CMD1="hdfs dfs -cp ${GS_PATH}/flights.csv ${HDFS_PATH}/input/flights.csv"
-echo "$UPLOAD_CMD1"
-${UPLOAD_CMD1}
+SUBMIT_CMD="${EXECUTOR} jar ${mapReduceArguments[@]}"
+echo "$SUBMIT_CMD"
+${SUBMIT_CMD}
 
-UPLOAD_CMD2="hdfs dfs -cp ${GS_PATH}/airlines.csv ${HDFS_PATH}/airlines.csv"
-echo "$UPLOAD_CMD2"
-${UPLOAD_CMD2}
-
-echo "<<<<<<<<<<<<<<<<<<  HDFS  <<<<<<<<<<<<<<<<<<<<<"
-
-hdfs dfs -ls -R ${HDFS_PATH}
-
-echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+echo "You should find results here: 'hadoop fs -ls $OUTPUT_PATH'"
